@@ -1,0 +1,97 @@
+import os, datetime, inspect
+
+class AoLog:
+    def __init__(
+        self, 
+        log_level: int = 0,
+        send_stdout: bool = False,
+        log_file_path: str = "main.log",
+        has_info: bool = False,
+        has_warnings: bool = False,
+        has_errors: bool = False,
+        transactions: list[str] = [],
+    ):
+        self.calling_func = __name__
+        self.line_number = -1
+        self.log_level = log_level
+        self.send_stdout = send_stdout
+        self.log_file_path = log_file_path
+        self.has_info = has_info
+        self.has_warnings= has_warnings
+        self.has_errors= has_errors
+        self.transactions = transactions
+    
+    def _get_caller_info(self):
+        frame = inspect.currentframe().f_back.f_back
+        frame_info = inspect.getframeinfo(frame)
+        return frame_info.filename, frame_info.function, frame_info.lineno
+
+    def log_info(self, message: str) -> int:
+        message = str(message)
+        file, func, line = self._get_caller_info()
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} | INFO: {file}.{func}:{line} -- {message}"
+        self.transactions.append(formatted_message)
+        self.has_info = True
+        return len(self.transactions)
+
+    def log_warning(self, message: str, debug: str) -> int:
+        message = str(message)
+        inspect.currentframe()
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} WARNING: fucntion {self.calling_func} on line {self.line_number} - {message} | DEBUG: {debug}"
+        self.transactions.append(formatted_message)
+        self.has_warnings = True
+        return len(self.transactions)
+
+    def log_error(self, message: str, debug: str) -> int:
+        message = str(message)
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} ERROR: fucntion {self.calling_func} on line {self.line_number} - {message} | DEBUG: {debug}"
+        self.transactions.append(formatted_message)
+        self.has_errors = True
+        return len(self.transactions)
+    
+    def full_reset(self):
+        del self.calling_func
+        del self.line_number
+        del self.transactions
+
+        self.calling_func = ""
+        self.line_number = 0
+        self.transactions= []
+        self.has_errors = False
+        self.has_warnings= False
+        self.has_info= False
+
+    def reset_errors(self):
+        self.has_errors = False
+
+    def reset_warnings(self):
+        self.has_warnings= False
+
+    def reset_info(self):
+        self.has_info= False
+
+    def flush(self, log_file_path: str = "") -> bool:
+        if type(log_file_path) != str:
+            return False
+        
+        if log_file_path == "":
+            with open(self.log_file_path, "a+") as f:
+                for line in self.transactions:
+                    line = line.replace("\n", "--")
+                    f.write(line + "\n")
+
+        else:
+            with open(log_file_path, "a+") as f:
+                for line in self.transactions:
+                    line = line.replace("\n", "--")
+                    f.write(line + "\n")
+        
+        del self.transactions
+        self.transactions = []
+        
+        return True
+    
+if __name__ == "__main__":
+    Log = AoLog()
+    Log.log_info("test 123")
+    flushed = Log.flush()
