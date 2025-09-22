@@ -1,4 +1,4 @@
-import os, datetime, inspect
+import datetime, inspect
 
 class AoLog:
     def __init__(
@@ -21,10 +21,15 @@ class AoLog:
         self.has_errors= has_errors
         self.transactions = transactions
     
-    def _get_caller_info(self):
-        frame = inspect.currentframe().f_back.f_back
-        frame_info = inspect.getframeinfo(frame)
-        return frame_info.filename, frame_info.function, frame_info.lineno
+    def _get_caller_info(self) -> tuple[str, str, int]:
+        frame = inspect.currentframe()
+        if frame == None:
+            return "no_frame", "no_function", 0
+
+        else:
+            frame = frame.f_back.f_back
+            frame_info = inspect.getframeinfo(frame)
+            return frame_info.filename, frame_info.function, frame_info.lineno
 
     def log_info(self, message: str) -> int:
         message = str(message)
@@ -72,8 +77,9 @@ class AoLog:
         self.has_info= False
 
     def flush(self, log_file_path: str = "", keep_state: bool = False) -> bool:
-        if not os.path.exists(log_file_path):
-            return False
+        # if not os.path.exists(log_file_path):
+        #     return False
+        
         if type(log_file_path) != str:
             return False
         
@@ -104,5 +110,6 @@ if __name__ == "__main__":
     Log.log_info("test info")
     Log.log_warning("test warning", "")
     Log.log_error("test error", "this is an error string")
-    print(Log.transactions)
     flushed = Log.flush()
+    if not flushed:
+        print("didn't flush")
