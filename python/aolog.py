@@ -36,15 +36,16 @@ class AoLog:
 
     def log_warning(self, message: str, debug: str) -> int:
         message = str(message)
-        inspect.currentframe()
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} WARNING: fucntion {self.calling_func} on line {self.line_number} - {message} | DEBUG: {debug}"
+        file, func, line = self._get_caller_info()
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} | WARNING: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
         self.transactions.append(formatted_message)
         self.has_warnings = True
         return len(self.transactions)
 
     def log_error(self, message: str, debug: str) -> int:
         message = str(message)
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} ERROR: fucntion {self.calling_func} on line {self.line_number} - {message} | DEBUG: {debug}"
+        file, func, line = self._get_caller_info()
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} | ERROR: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
         self.transactions.append(formatted_message)
         self.has_errors = True
         return len(self.transactions)
