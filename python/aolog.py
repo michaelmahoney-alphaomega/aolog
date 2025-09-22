@@ -4,6 +4,7 @@ class AoLog:
     def __init__(
         self, 
         log_level: int = 0,
+        rollover_size: int = 50000000,
         send_stdout: bool = False,
         log_file_path: str = "main.log",
         has_info: bool = False,
@@ -11,9 +12,8 @@ class AoLog:
         has_errors: bool = False,
         transactions: list[str] = [],
     ):
-        self.calling_func = __name__
-        self.line_number = -1
         self.log_level = log_level
+        self.rollover_size= rollover_size
         self.send_stdout = send_stdout
         self.log_file_path = log_file_path
         self.has_info = has_info
@@ -70,7 +70,9 @@ class AoLog:
     def reset_info(self):
         self.has_info= False
 
-    def flush(self, log_file_path: str = "") -> bool:
+    def flush(self, log_file_path: str = "", keep_state: bool = False) -> bool:
+        if not os.path.exists(log_file_path):
+            return False
         if type(log_file_path) != str:
             return False
         
@@ -86,12 +88,20 @@ class AoLog:
                     line = line.replace("\n", "--")
                     f.write(line + "\n")
         
-        del self.transactions
-        self.transactions = []
-        
+        # reset the logger to neutral
+        if keep_state == False:
+            del self.transactions
+            self.transactions = []
+            self.reset_errors()
+            self.reset_info()
+            self.reset_warnings()
+
         return True
     
 if __name__ == "__main__":
     Log = AoLog()
-    Log.log_info("test 123")
+    Log.log_info("test info")
+    Log.log_warning("test warning", "")
+    Log.log_error("test error", "this is an error string")
+    print(Log.transactions)
     flushed = Log.flush()
