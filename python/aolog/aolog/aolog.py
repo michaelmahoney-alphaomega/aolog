@@ -77,13 +77,18 @@ class AoLog:
         self.has_info= False
 
     def flush(self, log_file_path: str = "", keep_state: bool = False) -> bool:
-        # if not os.path.exists(log_file_path):
-        #     return False
-        
+        """
+        Purpose:
+            This function is the actual mechnism by which stored log data gets written to the log file(s).
+            Logs aren't immediately pushed to the log file because batching is more efficient and allows for
+            additional controls in case logs are large or could potentially contain sensitive info.
+        """
+        error = False
+
         if type(log_file_path) != str:
-            return False
+            error = True
         
-        if log_file_path == "":
+        elif log_file_path == "":
             with open(self.log_file_path, "a+") as f:
                 for line in self.transactions:
                     line = line.replace("\n", "--")
@@ -103,7 +108,7 @@ class AoLog:
             self.reset_info()
             self.reset_warnings()
 
-        return True
+        return error
     
 if __name__ == "__main__":
     Log = AoLog()
