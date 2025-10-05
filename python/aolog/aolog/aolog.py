@@ -34,7 +34,7 @@ class AoLog:
     def log_info(self, message: str) -> int:
         message = str(message)
         file, func, line = self._get_caller_info()
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} | INFO: {file}.{func}:{line} -- {message}"
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | INFO: {file}.{func}:{line} -- {message}"
         self.transactions.append(formatted_message)
         self.has_info = True
         return len(self.transactions)
@@ -42,7 +42,7 @@ class AoLog:
     def log_warning(self, message: str, debug: str) -> int:
         message = str(message)
         file, func, line = self._get_caller_info()
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} | WARNING: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | WARNING: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
         self.transactions.append(formatted_message)
         self.has_warnings = True
         return len(self.transactions)
@@ -50,7 +50,7 @@ class AoLog:
     def log_error(self, message: str, debug: str) -> int:
         message = str(message)
         file, func, line = self._get_caller_info()
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec="seconds")} | ERROR: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | ERROR: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
         self.transactions.append(formatted_message)
         self.has_errors = True
         return len(self.transactions)
