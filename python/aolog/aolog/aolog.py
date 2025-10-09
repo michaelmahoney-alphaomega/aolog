@@ -110,6 +110,15 @@ class AoLog:
 
         return error
     
+    def rollup_aolog(self, log: "AoLog"):
+        self.transactions.extend(log.transactions)
+        if log.has_errors: self.has_errors = True
+        if log.has_info: self.has_info = True
+        if log.has_warnings: self.has_warnings = True
+        
+        del log
+
+    
 if __name__ == "__main__":
     Log = AoLog()
     Log.log_info("test info")
