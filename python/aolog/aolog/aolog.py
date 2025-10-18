@@ -16,8 +16,11 @@ class AoLog:
         self.rollover_size= rollover_size
         self.send_stdout = send_stdout
         self.log_file_path = log_file_path
+        self.info_count = 0
         self.has_info = has_info
+        self.warning_count = 0
         self.has_warnings= has_warnings
+        self.error_count = 0
         self.has_errors= has_errors
         self.transactions = transactions
     
@@ -37,7 +40,8 @@ class AoLog:
         formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | INFO: {file}.{func}:{line} -- {message}"
         self.transactions.append(formatted_message)
         self.has_info = True
-        return len(self.transactions)
+        self.info_count += 1
+        return self.info_count
 
     def log_warning(self, message: str, debug: str) -> int:
         message = str(message)
@@ -45,7 +49,8 @@ class AoLog:
         formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | WARNING: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
         self.transactions.append(formatted_message)
         self.has_warnings = True
-        return len(self.transactions)
+        self.warning_count += 1
+        return self.warning_count
 
     def log_error(self, message: str, debug: str) -> int:
         message = str(message)
@@ -53,28 +58,28 @@ class AoLog:
         formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | ERROR: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
         self.transactions.append(formatted_message)
         self.has_errors = True
-        return len(self.transactions)
+        self.error_count += 1
+        return self.error_count
     
     def full_reset(self):
-        del self.calling_func
-        del self.line_number
-        del self.transactions
-
         self.calling_func = ""
         self.line_number = 0
         self.transactions= []
-        self.has_errors = False
-        self.has_warnings= False
-        self.has_info= False
+        self.reset_errors()
+        self.reset_info()
+        self.reset_warnings()
 
     def reset_errors(self):
         self.has_errors = False
+        self.error_count = 0
 
     def reset_warnings(self):
         self.has_warnings= False
+        self.warning_count = 0
 
     def reset_info(self):
         self.has_info= False
+        self.info_count = 0
 
     def flush(self, log_file_path: str = "", keep_state: bool = False) -> bool:
         """
@@ -102,11 +107,7 @@ class AoLog:
         
         # reset the logger to neutral
         if keep_state == False:
-            del self.transactions
-            self.transactions = []
-            self.reset_errors()
-            self.reset_info()
-            self.reset_warnings()
+            self.full_reset()
 
         return error
     
