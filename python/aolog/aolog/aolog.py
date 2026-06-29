@@ -26,7 +26,7 @@ class AoLog:
     
     def _get_caller_info(self) -> tuple[str, str, int]:
         frame = inspect.currentframe()
-        if frame == None:
+        if not frame:
             return "no_frame", "no_function", 0
 
         else:
