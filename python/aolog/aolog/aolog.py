@@ -7,6 +7,7 @@ class AoLog:
         rollover_size: int = 50000000,
         send_stdout: bool = False,
         log_file_path: str = "main.log",
+        has_debug: bool = False,
         has_info: bool = False,
         has_warnings: bool = False,
         has_errors: bool = False,
@@ -16,6 +17,8 @@ class AoLog:
         self.rollover_size= rollover_size
         self.send_stdout = send_stdout
         self.log_file_path = log_file_path
+        self.debug_count = 0
+        self.has_debug = has_debug
         self.info_count = 0
         self.has_info = has_info
         self.warning_count = 0
@@ -34,6 +37,15 @@ class AoLog:
             frame_info = inspect.getframeinfo(frame)
             return frame_info.filename, frame_info.function, frame_info.lineno
 
+    def log_debug(self, message: str) -> int:
+        message = str(message)
+        file, func, line = self._get_caller_info()
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | DEBUG: {file}.{func}:{line} -- {message}"
+        self.transactions.append(formatted_message)
+        self.has_debug = True
+        self.debug_count += 1
+        return self.debug_count
+
     def log_info(self, message: str) -> int:
         message = str(message)
         file, func, line = self._get_caller_info()
@@ -46,7 +58,7 @@ class AoLog:
     def log_warning(self, message: str, debug: str) -> int:
         message = str(message)
         file, func, line = self._get_caller_info()
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | WARNING: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | WARNING: {file}.{func}:{line} -- {message} | DETAILS: {debug}"
         self.transactions.append(formatted_message)
         self.has_warnings = True
         self.warning_count += 1
@@ -55,7 +67,7 @@ class AoLog:
     def log_error(self, message: str, debug: str) -> int:
         message = str(message)
         file, func, line = self._get_caller_info()
-        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | ERROR: {file}.{func}:{line} -- {message} | DEBUG: {debug}"
+        formatted_message = f"{datetime.datetime.now().isoformat(timespec='seconds')} | ERROR: {file}.{func}:{line} -- {message} | DETAILS: {debug}"
         self.transactions.append(formatted_message)
         self.has_errors = True
         self.error_count += 1
@@ -68,6 +80,7 @@ class AoLog:
         self.reset_errors()
         self.reset_info()
         self.reset_warnings()
+        self.reset_debug()
 
     def reset_errors(self):
         self.has_errors = False
@@ -80,6 +93,10 @@ class AoLog:
     def reset_info(self):
         self.has_info= False
         self.info_count = 0
+
+    def reset_debug(self):
+        self.has_debug = False
+        self.debug_count = 0
 
     def flush(self, log_file_path: str = "", keep_state: bool = False) -> bool:
         """
@@ -114,8 +131,9 @@ class AoLog:
     def rollup_aolog(self, log: "AoLog"):
         self.transactions.extend(log.transactions)
         if log.has_errors: self.has_errors = True
-        if log.has_info: self.has_info = True
-        if log.has_warnings: self.has_warnings = True
+        elif log.has_info: self.has_info = True
+        elif log.has_warnings: self.has_warnings = True
+        elif log.has_debug: self.has_debug = True
         
         del log
 

@@ -4,9 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aolog"
-version = "0.1.3"
+version = "0.2.0"
 description = "minimal logging class"
 authors = [{ name="Michael Mahoney", email="michael.mahoney@alphaomega.com.co" }]
+requires-python = ">=3.11"
 readme = "README.md"
 license = {file = "LICENSE"}
 dependencies = []
